@@ -1,5 +1,7 @@
 package model.logic;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,6 +36,7 @@ public class MVCModelo {
 	private Queue colaM4;
 	private Queue colaS4;
 	private Queue colaH4;
+	private Queue colaTxt;
 	Gson json = new Gson();
 	private int caragadosColaM1;
 	private int caragadosColaS1;
@@ -70,6 +73,7 @@ public class MVCModelo {
 		String pRutaS4="";
 		String pRutaH4="";
 		String jsonruta = "";
+		String txtruta = "";
 			pRutaM1=".data/bogota-cadastral-2018-1-MonthlyAggregate.csv";
 			pRutaH1=".data/bogota-cadastral-2018-1-HourlyAggregate.csv";
 			pRutaS1=".data/bogota-cadastral-2018-1-WeeklyAggregate.csv";
@@ -83,6 +87,7 @@ public class MVCModelo {
 			pRutaH4=".data/bogota-cadastral-2018-4-HourlyAggregate.csv";
 			pRutaS4=".data/bogota-cadastral-2018-4-WeeklyAggregate.csv";
 			jsonruta = ".data/bogota_cadastral.json";
+			txtruta = ".data/asdsadasdas.txt";
 		colaM1= new Queue(null);
 		colaS1= new Queue(null);
 		colaH1= new Queue(null);
@@ -209,7 +214,20 @@ public class MVCModelo {
 
 
 		
-		} catch (FileNotFoundException e) {
+		}
+			FileReader lector = new FileReader(txtruta);
+			BufferedReader leer = new BufferedReader(lector);
+			String lineaActual = leer.readLine();
+			while(lineaActual != "")
+			{
+				String[] valores = lineaActual.split(",");
+				valores[0]
+				valores[1]//Falta asignar
+				valores[2]		
+				lineaActual = leer.readLine();
+			}
+			
+		}catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally{
 			if (reader != null) {
