@@ -12,7 +12,9 @@ import com.google.gson.stream.JsonReader;
 import com.opencsv.CSVReader;
 
 import model.data_structures.ArregloDinamico;
+import model.data_structures.HashLP;
 import model.data_structures.IArregloDinamico;
+import model.data_structures.MaxHeapCP;
 import model.data_structures.Queue;
 import model.data_structures.Viaje;
 
@@ -20,23 +22,15 @@ import model.data_structures.Viaje;
  * Definicion del modelo del mundo
  *
  */
+
 public class MVCModelo {
 	/**
 	 * Atributos del modelo del mundo
 	 */
-	private Queue colaM1;
-	private Queue colaS1;
-	private Queue colaH1;
-	private Queue colaM2;
-	private Queue colaS2;
-	private Queue colaH2;
-	private Queue colaM3;
-	private Queue colaS3;
-	private Queue colaH3;
-	private Queue colaM4;
-	private Queue colaS4;
-	private Queue colaH4;
-	private Queue colaTxt;
+
+	private MaxHeapCP heap1;
+	private HashLP hash1;
+	
 	Gson json = new Gson();
 	private int caragadosColaM1;
 	private int caragadosColaS1;
@@ -197,19 +191,19 @@ public class MVCModelo {
 				String[] valores = obj.nextString().split(",");
 
 
-					int  inicioID=Integer.parseInt(nextLine[0]);
-					int destinoID=Integer.parseInt(nextLine[1]);
-					int hora=Integer.parseInt(nextLine[2]);
-					double tiempoPromedioEnSegundos=Double.parseDouble(nextLine[3]);
-					double desviacionEstandar=Double.parseDouble(nextLine[4]);
-					double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
-					double desviacionEstandarG=Double.parseDouble(nextLine[6]);
+//					int  inicioID=Integer.parseInt(nextLine[0]);
+//					int destinoID=Integer.parseInt(nextLine[1]);
+//					int hora=Integer.parseInt(nextLine[2]);
+//					double tiempoPromedioEnSegundos=Double.parseDouble(nextLine[3]);
+//					double desviacionEstandar=Double.parseDouble(nextLine[4]);
+//					double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
+//					double desviacionEstandarG=Double.parseDouble(nextLine[6]);
 
-					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
-					agregar = i;
-
-					colaS1.enQueue(i);
-					caragadosColaS1++;
+//					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
+//					agregar = i;
+//
+//					colaS1.enQueue(i);
+//					caragadosColaS1++;
 
 
 

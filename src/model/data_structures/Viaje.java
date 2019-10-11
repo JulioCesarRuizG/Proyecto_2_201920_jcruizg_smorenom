@@ -1,6 +1,6 @@
 package model.data_structures;
 
-public class Viaje {
+public class Viaje implements Comparable<Viaje>{
 
 	private int inicioID;
 	private int destinoID;
@@ -47,5 +47,18 @@ public class Viaje {
 	public double darDesviacionEstandarG()
 	{
 		return desviacionEstandarG;
+	}
+	
+	@Override
+	public int compareTo(Viaje t) {
+		if(tiempoPromedioEnSegundos > t.tiempoPromedioEnSegundos)
+		{
+			return 1;
+		}
+		else if(tiempoPromedioEnSegundos < t.tiempoPromedioEnSegundos)
+		{
+			return -1;
+		}
+		return 0;
 	}
 }
