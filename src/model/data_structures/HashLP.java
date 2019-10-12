@@ -5,29 +5,23 @@ import java.util.Iterator;
 public class HashLP<K extends Comparable<K>, V> {
 	private K[] llaves;
 	private V[] values;
-	private V[][] valuesSet;
-	private K[] keysSet;
-	private int NIndividual;
-	private int NSet;
-	private int nElementosIndividuales;
-	private int nElementosSet;
-	private int capacidadSet;
+	private int N;
+	private int nElementos;
 
 	public HashLP(int capacidadInicial) {
-		capacidadSet=7;
+
 		llaves = (K[]) new Comparable[capacidadInicial];
-		keysSet = (K[]) new Comparable[capacidadInicial];
 		values= (V[]) new Object[capacidadInicial];
-		valuesSet= (V[][]) new Object[capacidadInicial][capacidadSet];
-		NIndividual = capacidadInicial;
-		NSet=capacidadInicial;
-		nElementosIndividuales=0;
-		nElementosSet=0;
+
+		N = capacidadInicial;
+
+		nElementos=0;
+
 	}
 
 	public void put(K pKey, V pValue)
 	{  boolean existe=false;
-	int posicion=hashIndividual(pKey);
+	int posicion=hash(pKey);
 	K actual= llaves[posicion];
 	while(!existe&&actual!=null){
 
@@ -36,84 +30,44 @@ public class HashLP<K extends Comparable<K>, V> {
 			values[posicion]= pValue;
 
 		}
-		posicion=(posicion+1)%NIndividual;
+		posicion=(posicion+1)%N;
 		actual=llaves[posicion];
 	}
 	if(existe){
 
 	}else{
-		nElementosIndividuales++;
-		if(nElementosIndividuales==NIndividual-1){
+		nElementos++;
+		if(nElementos==N-1){
 
-			rehashIndividual(2*NIndividual);
+			rehash(2*N);
 
 		}
-		int hashKey= hashIndividual(pKey);
+		int hashKey= hash(pKey);
 		while(llaves[hashKey]!=null){
-			hashKey=(hashKey+1)%NIndividual;
+			hashKey=(hashKey+1)%N;
 		}
 		llaves[hashKey]=pKey;
 		values[hashKey]=pValue;
 
 	}
 	}
-	public void putInSet(K pKey, V[] pValues){
-		boolean existe=false;
-		int posicion=hashSet(pKey);
-		K actual= keysSet[posicion];
-		while(!existe&&actual!=null){
 
-			if(actual.compareTo(pKey)==0){
-				existe=true;
-				valuesSet[posicion]= pValues;
-
-			}
-			posicion=(posicion+1)%NSet;
-			actual=llaves[posicion];
-		}
-		nElementosSet+=pValues.length;
-		rehashSet(2*NSet);
-		if(existe){
-
-		}else{
-
-			int hashKey= hashSet(pKey);
-			while(keysSet[hashKey]!=null){
-				hashKey=(hashKey+1)%NSet;
-			}
-			keysSet[hashKey]=pKey;
-			valuesSet[hashKey]=pValues;
-
-		}
-
-	}
 	public V get(K pKey){
-		int pos=hashIndividual(pKey);
+		int pos=hash(pKey);
 		K actual = llaves[pos];
 		while(actual!=null){
 
 			if(actual.compareTo(pKey)==0)
 				return values[pos];
-			pos=(pos+1)%NIndividual;
+			pos=(pos+1)%N;
 			actual = llaves[pos];
 		}
 		return null;
 	}
-	public Iterador<V> getSet(K pKey){
-		int pos=hashSet(pKey);
-		K actual = keysSet[pos];
-		while(actual!=null){
 
-			if(actual.compareTo(pKey)==0)
-				return new Iterador<V>(valuesSet[pos]);
-			pos=(pos+1)%NSet;
-			actual = keysSet[pos];
-		}
-		return null;
-	}
-	
+
 	public V delete(K pKey){
-		int pos=hashIndividual(pKey);
+		int pos=hash(pKey);
 		K actual = llaves[pos];
 		boolean encontrado=false;
 		V eliminado = null;
@@ -131,100 +85,60 @@ public class HashLP<K extends Comparable<K>, V> {
 				put(actual,valor);
 			}
 			pos++;
-			if(pos==NIndividual)
+			if(pos==N)
 				pos=0;
 			actual = llaves[pos];
 		}
 		return eliminado;
 	}
-	public Iterador<V> deleteSet(K pKey){
-		int pos=hashSet(pKey);
-		K actual = keysSet[pos];
-		boolean encontrado=false;
-		Iterador<V> eliminado=null;
-		while(actual!=null){
-
-			if(actual.compareTo(pKey)==0&&!encontrado){
-				keysSet[pos]=null;
-				eliminado=new Iterador<V>(valuesSet[pos]);
-				valuesSet[pos]=null;
-				encontrado =true;
-			}
-			if(encontrado){
-				V[] valor= valuesSet[pos];
-				keysSet[pos]=null;
-				putInSet(actual,valor);
-			}
-			pos++;
-			if(pos==NSet)
-				pos=0;
-			actual = keysSet[pos];
-		}
-		return eliminado;
-	}
 
 
 
-	private int hashIndividual(K key)
+	private int hash(K key)
 	{
-		return (key.hashCode() & 0x7fffffff) % NIndividual;
-	}
-	private int hashSet(K key)
-	{
-		return (key.hashCode() & 0x7fffffff) % NSet;
+		return (key.hashCode() & 0x7fffffff) % N;
 	}
 
 
-	public int darNElementosIndividuales(){
-		return nElementosIndividuales;
+	public int darNElementos(){
+		return nElementos;
 	}
-	public int darNElementosSet(){
-		return nElementosSet;
 
-	}
-	public void rehashSet(int capacidad){
-		if(nElementosSet*4>=NSet*3){
-			HashLP<K, V> temp = new HashLP<K, V>(capacidad);
-			for (int i = 0; i < nElementosSet; i++) {
-				if (llaves[i] != null) {
-					temp.putInSet(keysSet[i], valuesSet[i]);
-				}
-			}
-			keysSet = temp.keysSet;
-			valuesSet = temp.valuesSet;
-			NSet= temp.NSet;
-			nElementosSet    = temp.nElementosSet;
-		}
 
-		}
-	
-	private void rehashIndividual(int capacity) {
+	private void rehash(int capacity) {
 		HashLP<K, V> temp = new HashLP<K, V>(capacity);
-		for (int i = 0; i < nElementosIndividuales; i++) {
+		for (int i = 0; i < nElementos; i++) {
 			if (llaves[i] != null) {
 				temp.put(llaves[i], values[i]);
 			}
 		}
 		llaves = temp.llaves;
 		values = temp.values;
-		
-		nElementosIndividuales    = temp.nElementosIndividuales;
+		N=temp.N;
+		nElementos    = temp.nElementos;
 	}
 
 
-  public Iterador<K> Keys(){
-	  int pos=0;
-	  K[] auxiliar=(K[]) new Comparable[llaves.length];
-	  int agregados = 0;
-	  while(pos<llaves.length){
-		  if(llaves[pos]!=null){
-		   auxiliar[agregados]=llaves[pos];
-		   agregados++;
-		  }
-		  pos++;
-	  }
-	  return new Iterador<K>(auxiliar);
-  }
+	public Iterador<K> Keys(){
+		int pos=0;
+		K[] auxiliar=(K[]) new Comparable[llaves.length];
+		int agregados = 0;
+		
+		while(pos<llaves.length){
+			if(llaves[pos]!=null){
+				auxiliar[agregados]=llaves[pos];
+				agregados++;
+			}
+			pos++;
+		}
+		Iterador<K> it = new Iterador<K>(auxiliar);
+		return it;
+	}
+	
+	public int darModulo()
+	{
+		return N;
+	}
 
 	public static void main(String[] args) {
 		HashLP<Integer,String> hash=new HashLP<Integer,String>(3);
@@ -236,6 +150,7 @@ public class HashLP<K extends Comparable<K>, V> {
 		System.out.println(hash.get(4));
 		System.out.println(hash.get(3));
 		System.out.println(hash.get(2));
+		System.out.println(hash.nElementos);
 
 	}
 

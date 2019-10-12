@@ -5,17 +5,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.opencsv.CSVReader;
 
-import model.data_structures.ArregloDinamico;
+import model.data_structures.Feature;
 import model.data_structures.HashLP;
-import model.data_structures.IArregloDinamico;
 import model.data_structures.MaxHeapCP;
-import model.data_structures.Queue;
+import model.data_structures.MultiPolygon;
 import model.data_structures.Viaje;
 
 /**
@@ -31,7 +31,6 @@ public class MVCModelo {
 	private MaxHeapCP heap1;
 	private HashLP hash1;
 	
-	Gson json = new Gson();
 	private int caragadosColaM1;
 	private int caragadosColaS1;
 	private int caragadosColaH1;
@@ -68,6 +67,7 @@ public class MVCModelo {
 		String pRutaH4="";
 		String jsonruta = "";
 		String txtruta = "";
+		Gson gson = new Gson();
 			pRutaM1=".data/bogota-cadastral-2018-1-MonthlyAggregate.csv";
 			pRutaH1=".data/bogota-cadastral-2018-1-HourlyAggregate.csv";
 			pRutaS1=".data/bogota-cadastral-2018-1-WeeklyAggregate.csv";
@@ -82,18 +82,6 @@ public class MVCModelo {
 			pRutaS4=".data/bogota-cadastral-2018-4-WeeklyAggregate.csv";
 			jsonruta = ".data/bogota_cadastral.json";
 			txtruta = ".data/asdsadasdas.txt";
-		colaM1= new Queue(null);
-		colaS1= new Queue(null);
-		colaH1= new Queue(null);
-		colaM2= new Queue(null);
-		colaS2= new Queue(null);
-		colaH2= new Queue(null);
-		colaM3= new Queue(null);
-		colaS3= new Queue(null);
-		colaH3= new Queue(null);
-		colaM4= new Queue(null);
-		colaS4= new Queue(null);
-		colaH4= new Queue(null);
 		
 		CSVReader reader = null;
 		CSVReader reader2 = null;
@@ -104,7 +92,7 @@ public class MVCModelo {
 		CSVReader reader7 = null;
 		CSVReader reader8 = null;
 		CSVReader reader9 = null;
-		CSVReader jsonreader = null;
+		JsonReader jsonreader = null;
 
 		try {
 			reader= new CSVReader(new FileReader(pRutaM1));
@@ -128,7 +116,6 @@ public class MVCModelo {
 					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
 					agregar = i;
 
-					colaM1.enQueue(i);
 					caragadosColaM1++;
 				}
 			}
@@ -153,7 +140,6 @@ public class MVCModelo {
 					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
 					agregar = i;
 
-					colaH1.enQueue(i);
 					caragadosColaH1++;
 				}
 			}
@@ -179,45 +165,28 @@ public class MVCModelo {
 					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
 					agregar = i;
 
-					colaS1.enQueue(i);
 					caragadosColaS1++;
 				}
 			}
 
-			Gson json = new Gson();
-			JsonReader obj = json.newJsonReader(new FileReader(jsonruta));
-			while(obj.hasNext())
+			
+			jsonreader = new JsonReader(new FileReader(jsonruta));
+			Feature[] lista = gson.fromJson(jsonruta, Feature[].class);
+			if(lista[0].darMultiPolygon(0).darPropiedades().darScaCodigo().equals("004575"))
 			{
-				String[] valores = obj.nextString().split(",");
-
-
-//					int  inicioID=Integer.parseInt(nextLine[0]);
-//					int destinoID=Integer.parseInt(nextLine[1]);
-//					int hora=Integer.parseInt(nextLine[2]);
-//					double tiempoPromedioEnSegundos=Double.parseDouble(nextLine[3]);
-//					double desviacionEstandar=Double.parseDouble(nextLine[4]);
-//					double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
-//					double desviacionEstandarG=Double.parseDouble(nextLine[6]);
-
-//					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
-//					agregar = i;
-//
-//					colaS1.enQueue(i);
-//					caragadosColaS1++;
-
-
-
-		
-		}
+				System.out.println("Se cargó el archivo json correctamente");
+			}
+			
+					
 			FileReader lector = new FileReader(txtruta);
 			BufferedReader leer = new BufferedReader(lector);
 			String lineaActual = leer.readLine();
 			while(lineaActual != "")
 			{
 				String[] valores = lineaActual.split(",");
-				valores[0]
-				valores[1]//Falta asignar
-				valores[2]		
+//				valores[0]
+//				valores[1]//Falta asignar
+//				valores[2]		
 				lineaActual = leer.readLine();
 			}
 			
