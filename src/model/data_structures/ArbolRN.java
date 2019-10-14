@@ -24,15 +24,15 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public ArbolRN() {
 	}
-	private boolean isRed(NodoArbol x) {
-		if (x == null)
+	private boolean isRed(NodoArbol nodo) {
+		if (nodo == null)
 			return false;
-		return x.color == RED;
+		return nodo.color == RED;
 	}
-	private int size(NodoArbol x) {
-		if (x == null)
+	private int size(NodoArbol nodo) {
+		if (nodo == null)
 			return 0;
-		return x.size;
+		return nodo.size;
 	} 
 	public int size() {
 		return size(root);
