@@ -115,7 +115,6 @@ public class HashLP<K extends Comparable<K>, V> {
 		llaves = temp.llaves;
 		values = temp.values;
 		N=temp.N;
-		nElementos    = temp.nElementos;
 	}
 
 
