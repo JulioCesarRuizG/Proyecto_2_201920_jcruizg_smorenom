@@ -391,7 +391,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public Iterable<K> keys() {
 		if (isEmpty())
-			return new Queue<Key>;
+			return new Queue<K>;
 		return keys(min(), max());
 	}
 
@@ -402,12 +402,12 @@ public class ArbolRN <K extends Comparable<K>, V>{
 		if (hi == null) 
 			throw new IllegalArgumentException("La segunda llave es null");
 
-		Queue<Key> queue = new Queue<Key>();
+		Queue<K> queue = new Queue<K>();
 		keys(root, queue, lo, hi);
 		return queue;
 	} 
 
-	private void keys(NodoArbol nodo, Queue<Key> queue, K lo, K hi) { 
+	private void keys(NodoArbol nodo, Queue<K> queue, K lo, K hi) { 
 		if (nodo == null) return; 
 		int cmplo = lo.compareTo(nodo.key); 
 		int cmphi = hi.compareTo(nodo.key); 
