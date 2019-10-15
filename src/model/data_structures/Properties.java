@@ -1,7 +1,5 @@
 package model.data_structures;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Scope;
-
 public class Properties {
 
 	private int cartodb_id;
@@ -9,6 +7,7 @@ public class Properties {
 	private int scatipo;
 	private String scanombre;
 	private double shape_leng;
+	private double shape_area;
 	private int MOVEMENT_ID;
 	private String DISPLAY_NAME;
 	

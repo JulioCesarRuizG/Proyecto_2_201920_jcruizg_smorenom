@@ -1,5 +1,8 @@
 package model.data_structures;
+
+import model.data_structures.Queue;
 import java.util.NoSuchElementException;
+
 public class ArbolRN <K extends Comparable<K>, V>{
 	private static final boolean RED   = true;
 	private static final boolean BLACK = false;
@@ -24,15 +27,15 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public ArbolRN() {
 	}
-	private boolean isRed(NodoArbol nodo) {
-		if (nodo == null)
+	private boolean isRed(NodoArbol x) {
+		if (x == null)
 			return false;
-		return nodo.color == RED;
+		return x.color == RED;
 	}
-	private int size(NodoArbol nodo) {
-		if (nodo == null)
+	private int size(NodoArbol x) {
+		if (x == null)
 			return 0;
-		return nodo.size;
+		return x.size;
 	} 
 	public int size() {
 		return size(root);
@@ -44,7 +47,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public V get(K key) {
 		if (key == null) 
-			throw new IllegalArgumentException("la llave ingresada por parametro es null");
+			throw new IllegalArgumentException("argument to get() is null");
 		return get(root, key);
 	}
 
@@ -68,7 +71,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public void put(K key, V val) {
 		if (key == null) 
-			throw new IllegalArgumentException("La llave a colocar es null");
+			throw new IllegalArgumentException("first argument to put() is null");
 		if (val == null) {
 			delete(key);
 			return;
@@ -104,7 +107,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public void deleteMin() {
 		if (isEmpty())
-			throw new NoSuchElementException("El árbol está vacio");
+			throw new NoSuchElementException("BST underflow");
 
 		if (!isRed(root.left) && !isRed(root.right))
 			root.color = RED;
@@ -127,7 +130,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 
 	public void deleteMax() {
-		if (isEmpty()) throw new NoSuchElementException("El árbol está vacio");
+		if (isEmpty()) throw new NoSuchElementException("BST underflow");
 
 		if (!isRed(root.left) && !isRed(root.right))
 			root.color = RED;
@@ -154,7 +157,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 
 	public void delete(K key) { 
-		if (key == null) throw new IllegalArgumentException("La llave a eliminar es null");
+		if (key == null) throw new IllegalArgumentException("argument to delete() is null");
 		if (!contains(key)) return;
 
 
@@ -271,7 +274,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public K min() {
 		if (isEmpty()) 
-			throw new NoSuchElementException("El árbol está vacio");
+			throw new NoSuchElementException("calls min() with empty symbol table");
 		return min(root).key;
 	} 
 
@@ -286,7 +289,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public K max() {
 		if (isEmpty())
-			throw new NoSuchElementException("El árbol está vacio");
+			throw new NoSuchElementException("calls max() with empty symbol table");
 		return max(root).key;
 	} 
 
@@ -301,9 +304,9 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public K floor(K pKey) {
 		if (pKey == null)
-			throw new IllegalArgumentException("La llave ingresada por parametro es null");
+			throw new IllegalArgumentException("argument to floor() is null");
 		if (isEmpty())
-			throw new NoSuchElementException("el árbol está vacio");
+			throw new NoSuchElementException("calls floor() with empty symbol table");
 		NodoArbol x = floor(root, pKey);
 		if (x == null) 
 			return null;
@@ -327,9 +330,9 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public K ceiling(K pKey) {
 		if (pKey == null) 
-			throw new IllegalArgumentException("la llave ingresada por parametro es null");
+			throw new IllegalArgumentException("argument to ceiling() is null");
 		if (isEmpty()) 
-			throw new NoSuchElementException("El arbol está vacio");
+			throw new NoSuchElementException("calls ceiling() with empty symbol table");
 		NodoArbol x = ceiling(root, pKey);
 		if (x == null) 
 			return null;
@@ -354,7 +357,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public K select(int n) {
 		if (n < 0 || n >= size()) {
-			throw new IllegalArgumentException("El número ingresado por parametro es invalido: " + n);
+			throw new IllegalArgumentException("argument to select() is invalid: " + n);
 		}
 		NodoArbol nodo = select(root, n);
 		return nodo.key;
@@ -371,7 +374,7 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public int rank(K pKey) {
 		if (pKey == null) 
-			throw new IllegalArgumentException("La llave ingresada por parametro es null");
+			throw new IllegalArgumentException("argument to rank() is null");
 		return rank(pKey, root);
 	} 
 
@@ -391,40 +394,40 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public Iterable<K> keys() {
 		if (isEmpty())
-			return new Queue<K>;
+			return new Queue<Key>();
 		return keys(min(), max());
 	}
 
 
 	public Iterable<K> keys(K lo, K hi) {
 		if (lo == null) 
-			throw new IllegalArgumentException("La primera llave es null");
+			throw new IllegalArgumentException("first argument to keys() is null");
 		if (hi == null) 
-			throw new IllegalArgumentException("La segunda llave es null");
+			throw new IllegalArgumentException("second argument to keys() is null");
 
-		Queue<K> queue = new Queue<K>();
+		Queue<Key> queue = new Queue<Key>();
 		keys(root, queue, lo, hi);
 		return queue;
 	} 
 
-	private void keys(NodoArbol nodo, Queue<K> queue, K lo, K hi) { 
-		if (nodo == null) return; 
-		int cmplo = lo.compareTo(nodo.key); 
-		int cmphi = hi.compareTo(nodo.key); 
+	private void keys(NodoArbol x, Queue<Key> queue, K lo, K hi) { 
+		if (x == null) return; 
+		int cmplo = lo.compareTo(x.key); 
+		int cmphi = hi.compareTo(x.key); 
 		if (cmplo < 0) 
-			keys(nodo.left, queue, lo, hi); 
+			keys(x.left, queue, lo, hi); 
 		if (cmplo <= 0 && cmphi >= 0) 
-			queue.enqueue(nodo.key); 
+			queue.enqueue(x.key); 
 		if (cmphi > 0) 
-			keys(nodo.right, queue, lo, hi); 
+			keys(x.right, queue, lo, hi); 
 	} 
 
 
 	public int size(K lo, K hi) {
 		if (lo == null)
-			throw new IllegalArgumentException("La primera llave es null");
+			throw new IllegalArgumentException("first argument to size() is null");
 		if (hi == null) 
-			throw new IllegalArgumentException("La segunda llave es null");
+			throw new IllegalArgumentException("second argument to size() is null");
 
 		if (lo.compareTo(hi) > 0) 
 			return 0;

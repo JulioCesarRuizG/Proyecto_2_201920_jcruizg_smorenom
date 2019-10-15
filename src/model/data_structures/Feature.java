@@ -1,14 +1,21 @@
 package model.data_structures;
 
 public class Feature {
-	private MultiPolygon[] geometry;
+	private MultiPolygon geometry;
+	private Properties properties;
 	
-	public Feature(MultiPolygon[] pGeometry)
+	public Feature(MultiPolygon pGeometry, Properties Ppropiedades)
 	{
 		geometry = pGeometry;
+		properties = Ppropiedades;
 	}
-	public MultiPolygon darMultiPolygon(int pos)
+	
+	public Properties darPropiedades()
 	{
-		return geometry[pos];
+		return properties;
+	}
+	public MultiPolygon darMultiPolygon()
+	{
+		return geometry;
 	}
 }

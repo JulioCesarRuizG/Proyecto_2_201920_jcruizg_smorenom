@@ -1,16 +1,14 @@
 package model.data_structures;
 
+import java.util.List;
+
 public class MultiPolygon {
-	private Polygon[] coordinates;
-	private Properties propiedades;
-	
-	public MultiPolygon(Polygon[] Ppoligonos, Properties Ppropiedades)
+	private List<Polygon> coordinates;
+
+
+	public MultiPolygon(List<Polygon> Ppoligonos)
 	{
 		coordinates = Ppoligonos;
-	}
-	
-	public Properties darPropiedades()
-	{
-		return propiedades;
+
 	}
 }
