@@ -15,7 +15,6 @@ import com.opencsv.CSVReader;
 import model.data_structures.Feature;
 import model.data_structures.FeatureCollection;
 import model.data_structures.HashLP;
-import model.data_structures.JsonCompleto;
 import model.data_structures.MaxHeapCP;
 import model.data_structures.MultiPolygon;
 import model.data_structures.Viaje;
@@ -241,6 +240,4 @@ public class MVCModelo {
 			}
 		}
 	}
-
-
 }
