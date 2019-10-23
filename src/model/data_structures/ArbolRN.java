@@ -1,7 +1,6 @@
 package model.data_structures;
 import java.util.NoSuchElementException;
-
-import sun.misc.Queue;
+import model.data_structures.Queue;
 public class ArbolRN <K extends Comparable<K>, V>{
 	private static final boolean RED   = true;
 	private static final boolean BLACK = false;
@@ -393,10 +392,10 @@ public class ArbolRN <K extends Comparable<K>, V>{
 
 	public Iterable<K> keys() {
 		if (isEmpty())
-			return new Queue<K>;
+			return null;
 		return keys(min(), max());
-	}
 
+	}
 
 	public Iterable<K> keys(K lo, K hi) {
 		if (lo == null) 
@@ -404,9 +403,9 @@ public class ArbolRN <K extends Comparable<K>, V>{
 		if (hi == null) 
 			throw new IllegalArgumentException("La segunda llave es null");
 
-		Queue<K> queue = new Queue<K>();
+		Queue<K> queue = new Queue<K>(null);
 		keys(root, queue, lo, hi);
-		return queue;
+		return  queue;
 	} 
 
 	private void keys(NodoArbol nodo, Queue<K> queue, K lo, K hi) { 
@@ -416,11 +415,31 @@ public class ArbolRN <K extends Comparable<K>, V>{
 		if (cmplo < 0) 
 			keys(nodo.left, queue, lo, hi); 
 		if (cmplo <= 0 && cmphi >= 0) 
-			queue.enqueue(nodo.key); 
+			queue.enQueue(nodo.key); 
 		if (cmphi > 0) 
 			keys(nodo.right, queue, lo, hi); 
 	} 
+	public Iterable<V> valuesInRange(K lo, K hi) {
+		if (lo == null) 
+			throw new IllegalArgumentException("La primera llave es null");
+		if (hi == null) 
+			throw new IllegalArgumentException("La segunda llave es null");
 
+		Queue<V> queue = new Queue<V>(null);
+		valuesInRange(root, queue, lo, hi);
+		return  queue;
+	} 
+	private void valuesInRange(NodoArbol nodo, Queue<V> queue, K lo, K hi) { 
+		if (nodo == null) return; 
+		int cmplo = lo.compareTo(nodo.key); 
+		int cmphi = hi.compareTo(nodo.key); 
+		if (cmplo < 0) 
+			valuesInRange(nodo.left, queue, lo, hi); 
+		if (cmplo <= 0 && cmphi >= 0) 
+			queue.enQueue(nodo.value); 
+		if (cmphi > 0) 
+			valuesInRange(nodo.right, queue, lo, hi); 
+	} 
 
 	public int size(K lo, K hi) {
 		if (lo == null)
