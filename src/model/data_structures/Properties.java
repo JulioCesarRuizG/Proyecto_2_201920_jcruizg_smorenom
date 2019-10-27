@@ -26,4 +26,9 @@ public class Properties {
 	{
 		return scacodigo;
 	}
+	
+	public String darScanombre()
+	{
+		return scanombre;
+	}
 }
