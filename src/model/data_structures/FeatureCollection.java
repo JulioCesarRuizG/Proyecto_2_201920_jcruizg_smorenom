@@ -4,10 +4,18 @@ import java.util.List;
 
 public class FeatureCollection {
 	
-	private List<Feature> features;
+	private Feature[] features;
 	
-	public FeatureCollection(List<Feature> pFeatures)
+	public FeatureCollection( Feature[] pFeatures)
 	{
 		features = pFeatures;
+	}
+
+	public Feature[] getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(Feature[] features) {
+		this.features = features;
 	}
 }

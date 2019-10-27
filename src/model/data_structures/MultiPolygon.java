@@ -3,12 +3,11 @@ package model.data_structures;
 import java.util.List;
 
 public class MultiPolygon {
-	private List<Polygon> coordinates;
+	private double[][][][] coordinates;
 
 
-	public MultiPolygon(List<Polygon> Ppoligonos)
+	public MultiPolygon(double[][][][] Ppoligonos)
 	{
 		coordinates = Ppoligonos;
-
 	}
 }

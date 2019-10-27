@@ -1,22 +1,18 @@
 package model.logic;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.opencsv.CSVReader;
 
 import model.data_structures.Feature;
 import model.data_structures.FeatureCollection;
 import model.data_structures.HashLP;
 import model.data_structures.MaxHeapCP;
-import model.data_structures.MultiPolygon;
 import model.data_structures.Viaje;
 
 /**
@@ -42,13 +38,29 @@ public class MVCModelo {
 	 */
 	// por alguna razón, no carga correctamente el excel que se nos entrega. Pero, si utilizamos uno con el mismo orden y tipo de datos pero que solo tiene mil lineas,funciona correctamente
 	public MVCModelo(int n) throws Exception{
-		
-		String jsonruta = "./data/bogota_cadastral.json";
-		JsonReader jsonreader = null;
+
+		String path = "./data/test2.json";
+		JsonReader reader;
 		Gson gson = new Gson();
-		jsonreader = new JsonReader(new FileReader(jsonruta));
-		FeatureCollection lista = gson.fromJson(jsonruta, FeatureCollection.class);
-		
+		try {
+			reader = new JsonReader(new FileReader(path));
+			FeatureCollection lista3 = gson.fromJson(reader, FeatureCollection.class);
+			Feature feature =lista3.getFeatures()[1];
+			String valor = feature.darPropiedades().darScanombre();
+			if( valor.equals("LA MAGDALENA"))
+			{
+				System.out.println("Se ha cargado bien 1 de 5");
+			}
+			else
+			{
+				System.out.println("No se ha cargado correctamente el archivo json");
+				System.out.println(feature.darPropiedades().darScanombre());
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
 		String pRutaM="";
 		String pRutaS="";
 		String pRutaH="";
@@ -77,13 +89,14 @@ public class MVCModelo {
 			pRutaS="./data/bogota-cadastral-2018-4-WeeklyAggregate.csv";
 		}
 
-		
+
 		String txtruta = "./data/asdsadasdas.txt";
 
 		CSVReader reader1 = null;
 		CSVReader reader2 = null;
 		CSVReader reader3 = null;
-		
+		cargados = 0;
+
 
 		try {
 			reader1= new CSVReader(new FileReader(pRutaM));
@@ -108,13 +121,14 @@ public class MVCModelo {
 					cargados++;
 				}
 			}
-			if(cargados == 1048575)
+			if(cargados == 1549588)
 			{
-				System.out.println("Se ha cargado bien 1 de 5");
+				System.out.println("Se ha cargado bien 2 de 5");
 			}
 			else
 			{
 				System.out.println("Error al cargar 1 de 5");
+				System.out.println(cargados);
 			}
 			cargados = 0;
 
@@ -144,13 +158,14 @@ public class MVCModelo {
 				}
 			}
 
-			if(cargados == 1048575)
+			if(cargados == 10067605)
 			{
-				System.out.println("Se ha cargado bien 2 de 5");
+				System.out.println("Se ha cargado bien 3 de 5");
 			}
 			else
 			{
 				System.out.println("Error al cargar 2 de 5");
+				System.out.println(cargados);
 			}
 			cargados = 0;
 
@@ -178,26 +193,16 @@ public class MVCModelo {
 					cargados++;
 				}
 			}
-			if(cargados == 1048575)
+			if(cargados == 3548973)
 			{
-				System.out.println("Se ha cargado bien 3 de 5");
+				System.out.println("Se ha cargado bien 4 de 5");
 			}
 			else
 			{
 				System.out.println("Error al cargar 3 de 5");
+				System.out.println(cargados);
 			}
 			cargados = 0;
-
-			
-//			if(lista[0].darMultiPolygon(0).darPropiedades().darScaCodigo().equals("004575"))
-//			{
-//				System.out.println("Se ha cargado bien 4 de 5");
-//			}
-//			else
-//			{
-//				System.out.println("Error al cargar 4 de 5");
-//			}
-
 
 			FileReader lector = new FileReader(txtruta);
 			BufferedReader leer = new BufferedReader(lector);
