@@ -8,13 +8,13 @@ public class ArbolRN <K extends Comparable<K>, V>{
 	private NodoArbol root;     
 	private class NodoArbol  {
 		private K key;           
-		private V value;         
+		private Queue<V> value;         
 		private NodoArbol left;
 		private NodoArbol right;  
 		private boolean color;    
 		private int size;         
 
-		public NodoArbol(K key, V val, boolean color, int size) {
+		public NodoArbol(K key, Queue<V> val, boolean color, int size) {
 			this.key = key;
 			this.value = val;
 			this.color = color;
@@ -43,13 +43,13 @@ public class ArbolRN <K extends Comparable<K>, V>{
 		return root == null;
 	}
 
-	public V get(K key) {
+	public Queue<V> get(K key) {
 		if (key == null) 
 			throw new IllegalArgumentException("la llave ingresada por parametro es null");
 		return get(root, key);
 	}
 
-	private V get(NodoArbol nodo, K key) {
+	private Queue<V> get(NodoArbol nodo, K key) {
 		while (nodo != null) {
 			int cmp = key.compareTo(nodo.key);
 			if      (cmp < 0) 
@@ -80,16 +80,17 @@ public class ArbolRN <K extends Comparable<K>, V>{
 	}
 
 	private NodoArbol put(NodoArbol nodo, K key, V val) { 
-		if (nodo == null) 
-			return new NodoArbol(key, val, RED, 1);
-
+		if (nodo == null){ 
+			Queue<V> valor= new Queue<V>(new Node<V>(val,null));
+			return new NodoArbol(key, valor, RED, 1);
+		}
 		int cmp = key.compareTo(nodo.key);
 		if      (cmp < 0) 
 			nodo.left  = put(nodo.left,  key, val); 
 		else if (cmp > 0)
 			nodo.right = put(nodo.right, key, val); 
 		else             
-			nodo.value   = val;
+			nodo.value.enQueue(val);
 
 		if (isRed(nodo.right) && !isRed(nodo.left))     
 			nodo = rotateLeft(nodo);

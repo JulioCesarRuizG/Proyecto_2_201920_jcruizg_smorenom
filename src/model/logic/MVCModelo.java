@@ -9,10 +9,13 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.opencsv.CSVReader;
 
+import model.data_structures.ArbolRN;
 import model.data_structures.Feature;
 import model.data_structures.FeatureCollection;
 import model.data_structures.HashLP;
 import model.data_structures.MaxHeapCP;
+import model.data_structures.Node;
+import model.data_structures.Queue;
 import model.data_structures.Viaje;
 
 /**
@@ -24,10 +27,149 @@ public class MVCModelo {
 	/**
 	 * Atributos del modelo del mundo
 	 */
-
-	private MaxHeapCP heap1;
-	private HashLP hash1;
-
+    private class A1Letras implements Comparable<A1Letras>{
+    	/* Se usará para el punto 1A. Cuando se lea una linea, se usará el método agregar nombre para agregar el nombre de la zona 
+    	 * Si todaviá no hay una zona con la misma primera letra en el nombre, se creará un nuevo A1Letras y se agregará al heap con ese nombre
+    	 */
+    	char letra;
+    	int cantidad;
+    	Queue<String> nombres;
+    	public A1Letras(char pLetra, String pNombre){
+    		letra=pLetra;
+    		nombres= new Queue<String>(new Node<String>(pNombre,null));
+    		cantidad= nombres.size();
+    	}
+    	public void agregarNombre(String pNombre){
+    		nombres.enQueue(pNombre);
+    		cantidad++;
+    	}
+		public int compareTo(A1Letras o) {
+			if(cantidad==o.cantidad)
+			return 0;
+			if(cantidad<o.cantidad)
+				return-1;
+			else
+				return 1;
+		}
+    	
+    }
+    private class ValorViajesRango implements Comparable<ValorViajesRango>{
+        /*
+         * Se utilizará para guardar los datos necesarios en los puntos 3A y 3B
+         */
+    	private double zonaOrigen;
+    	private double zonaDestino;
+    	private int mes;
+    	public ValorViajesRango(double pOrigen, double pDestino, int pMes){
+    		zonaOrigen=pOrigen;
+    		zonaDestino=pDestino;
+    		mes=pMes;
+    		
+    	}
+		@Override
+		public int compareTo(ValorViajesRango o) {
+			
+			if(zonaOrigen==o.zonaOrigen){
+				if(zonaDestino==o.zonaDestino)
+				return 0;
+				if(zonaDestino<o.zonaDestino)
+					return -1;
+				else
+				return 1;
+			}
+			if(zonaOrigen<o.zonaOrigen)
+				return-1;
+			else
+				return 1;
+			
+		}}
+		  private class ValorMasAlNorte implements Comparable<ValorMasAlNorte> {
+		        /*
+		         * Se utilizará para guardar los datos necesarios en el punto 1B
+		         */
+			  private double latitud;
+		    	private double longitud;
+		    	private String nombre;
+		    	public ValorMasAlNorte(double pLongitud, String pNombre, double pLatitud){
+		    		longitud=pLongitud;
+		    		nombre=pNombre;
+		    		latitud=pLatitud;
+		    		
+		    	}
+				@Override
+				public int compareTo(ValorMasAlNorte o) {
+					if(latitud==o.latitud)
+					return 0;
+					if(latitud<o.latitud)
+						return -1;
+					else return 1;
+				}
+		    	
+				
+     }
+		  
+		  
+		  private class ZonaYHoraDadaKey implements Comparable<ZonaYHoraDadaKey>  {
+		        /*
+		         * Se utilizará para guardar las keys en el punto 1C
+		         */
+			  private double zona;
+		    	private int hora;
+		    	public ZonaYHoraDadaKey(int pHora, double pZona){
+		    		hora=pHora;
+		    		zona=pZona;
+		    		
+		    	}
+				@Override
+				public int compareTo(ZonaYHoraDadaKey o) {
+					if(zona==o.zona&&hora==o.hora)
+					return 0;
+					if((zona+""+hora).compareTo(o.zona+""+o.hora)==-1){
+						return -1;
+					}
+					else return 1;
+				}
+		    	
+		  }
+		  private class ZonaYHoraDadaValue  {
+		        /*
+		         * Se utilizará para guardar los values en el punto 1C
+		         */
+			  private double zona;
+		    	private double tiempoPromedio;
+		    	public ZonaYHoraDadaValue(double pTPromedio, double pZona){
+		    		tiempoPromedio=pTPromedio;
+		    		zona=pZona;
+		    		
+		    	}
+				
+		    	
+				
+   }
+	private MaxHeapCP<A1Letras> heap1A;
+	/*
+	 * Este arbol se utilizará para el punto 3A del proyecto. Tendrá como key el tiempo promedio de los viajes que lea
+	 * En el caso de que haya dos viajes con el mismo nombre, se agregará de igual manera al queue de ValorViajesRango.
+	 * Se usará el método getKeysInRange y getValuesInRange  para esto y se organizará en base a las zonas de origen y destino posteriormente
+	 */
+	private ArbolRN<Double,ValorViajesRango>  Arbol3A;
+	//Igual que 3A, pero con la desviación estandar en lugar de el tiempo promedio
+	private ArbolRN<Double,ValorViajesRango>  Arbol3B;
+	//Como 1A, pero  para 1B y toca revisar cual es la latitud mayor
+	private MaxHeapCP<ValorMasAlNorte> heap1B;
+	/*
+	 * Se Utilizará para para el punto 1C, y se designará la zona de origen y la hora como key, usando una clase privada
+	 */
+	private HashLP<ZonaYHoraDadaKey,ZonaYHoraDadaValue> hash1C;
+	/*
+	 * Se Utilizará para para el punto 2C, y se designará la zona de Destino y la hora como key, usando una clase privada
+	 */
+	private ArbolRN<ZonaYHoraDadaKey,ZonaYHoraDadaValue> Arbol2C;
+	/*
+	 * Se Utilizará para para el punto 3C, y se designará el numero de nodos como key y el nombre de la zona como value
+	 */
+	private HashLP<Integer,String> hash3C;
+	
 	private int cargados;
 
 	private boolean valor=true;

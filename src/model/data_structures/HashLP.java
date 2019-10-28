@@ -4,14 +4,14 @@ import java.util.Iterator;
 
 public class HashLP<K extends Comparable<K>, V> {
 	private K[] llaves;
-	private V[] values;
+	private Queue<V>[] values;
 	private int N;
 	private int nElementos;
 
 	public HashLP(int capacidadInicial) {
 
 		llaves = (K[]) new Comparable[capacidadInicial];
-		values= (V[]) new Object[capacidadInicial];
+		values=  new Queue[capacidadInicial];
 
 		N = capacidadInicial;
 
@@ -27,7 +27,7 @@ public class HashLP<K extends Comparable<K>, V> {
 
 		if(actual.compareTo(pKey)==0){
 			existe=true;
-			values[posicion]= pValue;
+			values[posicion].enQueue(pValue);
 
 		}
 		posicion=(posicion+1)%N;
@@ -47,12 +47,75 @@ public class HashLP<K extends Comparable<K>, V> {
 			hashKey=(hashKey+1)%N;
 		}
 		llaves[hashKey]=pKey;
+		values[hashKey].enQueue(pValue);
+
+	}
+	}
+	public void putAll(K pKey, Queue<V> pValue)
+	{  boolean existe=false;
+	int posicion=hash(pKey);
+	K actual= llaves[posicion];
+	while(!existe&&actual!=null){
+
+		if(actual.compareTo(pKey)==0){
+			existe=true;
+			values[posicion]=pValue;
+
+		}
+		posicion=(posicion+1)%N;
+		actual=llaves[posicion];
+	}
+	if(existe){
+
+	}else{
+		if(nElementos==N-1){
+
+			rehash(2*N);
+
+		}
+		int hashKey= hash(pKey);
+		while(llaves[hashKey]!=null){
+			hashKey=(hashKey+1)%N;
+		}
+		llaves[hashKey]=pKey;
+		values[hashKey]=pValue;
+
+	}
+	}
+	public void putAll2(K pKey, Queue<V> pValue)
+	{  boolean existe=false;
+	int posicion=hash(pKey);
+	K actual= llaves[posicion];
+	while(!existe&&actual!=null){
+
+		if(actual.compareTo(pKey)==0){
+			existe=true;
+			values[posicion]=pValue;
+
+		}
+		posicion=(posicion+1)%N;
+		actual=llaves[posicion];
+	}
+	if(existe){
+
+	}else{
+		nElementos+=pValue.size();
+		if(nElementos==N-1){
+
+			rehash(2*N);
+
+		}
+		int hashKey= hash(pKey);
+		while(llaves[hashKey]!=null){
+			hashKey=(hashKey+1)%N;
+		}
+		llaves[hashKey]=pKey;
 		values[hashKey]=pValue;
 
 	}
 	}
 
-	public V get(K pKey){
+	public Queue<V> get(K pKey){
 		int pos=hash(pKey);
 		K actual = llaves[pos];
 		while(actual!=null){
@@ -66,11 +129,11 @@ public class HashLP<K extends Comparable<K>, V> {
 	}
 
 
-	public V delete(K pKey){
+	public Queue<V> delete(K pKey){
 		int pos=hash(pKey);
 		K actual = llaves[pos];
 		boolean encontrado=false;
-		V eliminado = null;
+		Queue<V> eliminado = null;
 		while(actual!=null){
 
 			if(actual.compareTo(pKey)==0&&!encontrado){
@@ -80,15 +143,16 @@ public class HashLP<K extends Comparable<K>, V> {
 				encontrado =true;
 			}
 			if(encontrado){
-				V valor= values[pos];
+				Queue<V> valor= values[pos];
 				llaves[pos]=null;
-				put(actual,valor);
+				putAll(actual,valor);
 			}
 			pos++;
 			if(pos==N)
 				pos=0;
 			actual = llaves[pos];
 		}
+		nElementos-=eliminado.size();
 		return eliminado;
 	}
 
@@ -109,7 +173,7 @@ public class HashLP<K extends Comparable<K>, V> {
 		HashLP<K, V> temp = new HashLP<K, V>(capacity);
 		for (int i = 0; i < nElementos; i++) {
 			if (llaves[i] != null) {
-				temp.put(llaves[i], values[i]);
+				temp.putAll(llaves[i], values[i]);
 			}
 		}
 		llaves = temp.llaves;
