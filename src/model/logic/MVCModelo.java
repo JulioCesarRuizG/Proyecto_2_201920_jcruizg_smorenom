@@ -31,8 +31,8 @@ public class MVCModelo {
     	/* Se usará para el punto 1A. Cuando se lea una linea, se usará el método agregar nombre para agregar el nombre de la zona 
     	 * Si todaviá no hay una zona con la misma primera letra en el nombre, se creará un nuevo A1Letras y se agregará al heap con ese nombre
     	 */
-    	char letra;
-    	int cantidad;
+    	private char letra;
+    	private int cantidad;
     	Queue<String> nombres;
     	public A1Letras(char pLetra, String pNombre){
     		letra=pLetra;
@@ -57,10 +57,10 @@ public class MVCModelo {
         /*
          * Se utilizará para guardar los datos necesarios en los puntos 3A y 3B
          */
-    	private double zonaOrigen;
-    	private double zonaDestino;
+    	private int zonaOrigen;
+    	private int zonaDestino;
     	private int mes;
-    	public ValorViajesRango(double pOrigen, double pDestino, int pMes){
+    	public ValorViajesRango(int pOrigen, int pDestino, int pMes){
     		zonaOrigen=pOrigen;
     		zonaDestino=pDestino;
     		mes=pMes;
@@ -113,9 +113,9 @@ public class MVCModelo {
 		        /*
 		         * Se utilizará para guardar las keys en el punto 1C
 		         */
-			  private double zona;
+			  private int zona;
 		    	private int hora;
-		    	public ZonaYHoraDadaKey(int pHora, double pZona){
+		    	public ZonaYHoraDadaKey(int pHora, int pZona){
 		    		hora=pHora;
 		    		zona=pZona;
 		    		
@@ -135,9 +135,9 @@ public class MVCModelo {
 		        /*
 		         * Se utilizará para guardar los values en el punto 1C
 		         */
-			  private double zona;
+			  private int zona;
 		    	private double tiempoPromedio;
-		    	public ZonaYHoraDadaValue(double pTPromedio, double pZona){
+		    	public ZonaYHoraDadaValue(double pTPromedio, int pZona){
 		    		tiempoPromedio=pTPromedio;
 		    		zona=pZona;
 		    		
@@ -228,11 +228,13 @@ public class MVCModelo {
 		String pRutaM="";
 		String pRutaS="";
 		String pRutaH="";
+		boolean primerTrimestre=false;
 		if(n == 1)
 		{
 			pRutaM="./data/bogota-cadastral-2018-1-All-MonthlyAggregate.csv";
 			pRutaH="./data/bogota-cadastral-2018-1-All-HourlyAggregate.csv";
 			pRutaS="./data/bogota-cadastral-2018-1-WeeklyAggregate.csv";
+			primerTrimestre=true;
 		}
 		else if(n == 2)
 		{
@@ -273,13 +275,17 @@ public class MVCModelo {
 				{
 					int inicioID = Integer.parseInt(nextLine[0]);
 					int destinoID=Integer.parseInt(nextLine[1]);
-					int hora=Integer.parseInt(nextLine[2]);
+					int Mes=Integer.parseInt(nextLine[2]);
 					double tiempoPromedioEnSegundos=Double.parseDouble(nextLine[3]);
 					double desviacionEstandar=Double.parseDouble(nextLine[4]);
 					double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
 					double desviacionEstandarG=Double.parseDouble(nextLine[6]);
+					if(primerTrimestre){
+						Arbol3A.put(tiempoPromedioEnSegundos, new ValorViajesRango(inicioID,destinoID,Mes));
+						Arbol3B.put(desviacionEstandar, new ValorViajesRango(inicioID,destinoID,Mes));
+					}
 
-					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
+					Viaje i = new Viaje(inicioID,destinoID,Mes,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
 					agregar = i;
 
 					cargados++;
@@ -313,7 +319,8 @@ public class MVCModelo {
 					double desviacionEstandar=Double.parseDouble(nextLine[4]);
 					double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
 					double desviacionEstandarG=Double.parseDouble(nextLine[6]);
-
+                    hash1C.put(new ZonaYHoraDadaKey(hora,inicioID), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,destinoID));
+                    Arbol2C.put(new ZonaYHoraDadaKey(hora,destinoID), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,inicioID));
 					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
 					agregar = i;
 
