@@ -146,6 +146,28 @@ public class MVCModelo {
 		    	
 				
    }
+		  private class NNodosYNombre3C implements Comparable<NNodosYNombre3C>  {
+		        /*
+		         * Se utilizará para guardar las keys en el punto 1C
+		         */
+			  private String nombre;
+		    	private int nNodos;
+		    	public NNodosYNombre3C(int pNNodos, String pNombre){
+		    		nNodos=pNNodos;
+		    		nombre=pNombre;
+		    		
+		    	}
+				@Override
+				public int compareTo(NNodosYNombre3C o) {
+					if(nNodos==o.nNodos)
+					return 0;
+					if(nNodos<o.nNodos){
+						return -1;
+					}
+					else return 1;
+				}
+		    	
+		  }
 	private MaxHeapCP<A1Letras> heap1A;
 	/*
 	 * Este arbol se utilizará para el punto 3A del proyecto. Tendrá como key el tiempo promedio de los viajes que lea
@@ -166,9 +188,9 @@ public class MVCModelo {
 	 */
 	private ArbolRN<ZonaYHoraDadaKey,ZonaYHoraDadaValue> Arbol2C;
 	/*
-	 * Se Utilizará para para el punto 3C, y se designará el numero de nodos como key y el nombre de la zona como value
+	 * Se Utilizará para para el punto 3C, y el número de nodos se utilizará para la función compareTo 
 	 */
-	private HashLP<Integer,String> hash3C;
+	private MaxHeapCP<NNodosYNombre3C> heap3C;
 	
 	private int cargados;
 
