@@ -420,17 +420,17 @@ public class ArbolRN <K extends Comparable<K>, V>{
 		if (cmphi > 0) 
 			keys(nodo.right, queue, lo, hi); 
 	} 
-	public Iterable<V> valuesInRange(K lo, K hi) {
+	public Iterable<Queue<V>> valuesInRange(K lo, K hi) {
 		if (lo == null) 
 			throw new IllegalArgumentException("La primera llave es null");
 		if (hi == null) 
 			throw new IllegalArgumentException("La segunda llave es null");
 
-		Queue<V> queue = new Queue<V>(null);
+		Queue<Queue<V>> queue = new Queue<Queue<V>>(null);
 		valuesInRange(root, queue, lo, hi);
 		return  queue;
 	} 
-	private void valuesInRange(NodoArbol nodo, Queue<V> queue, K lo, K hi) { 
+	private void valuesInRange(NodoArbol nodo, Queue<Queue<V>> queue, K lo, K hi) { 
 		if (nodo == null) return; 
 		int cmplo = lo.compareTo(nodo.key); 
 		int cmphi = hi.compareTo(nodo.key); 

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -17,6 +18,7 @@ import model.data_structures.MaxHeapCP;
 import model.data_structures.Node;
 import model.data_structures.Queue;
 import model.data_structures.Viaje;
+import model.logic.MVCModelo.ValorViajesRango;
 
 /**
  * Definicion del modelo del mundo
@@ -68,6 +70,38 @@ public class MVCModelo {
 		}
 		@Override
 		public int compareTo(ValorViajesRango o) {
+
+			if(zonaOrigen==o.zonaOrigen){
+				if(zonaDestino==o.zonaDestino)
+					return 0;
+				if(zonaDestino<o.zonaDestino)
+					return -1;
+				else
+					return 1;
+			}
+			if(zonaOrigen<o.zonaOrigen)
+				return-1;
+			else
+				return 1;
+
+		}}
+	private class ValorViajesRangoConKey implements Comparable<ValorViajesRangoConKey>{
+		/*
+		 * Se utilizará para guardar los datos necesarios en los puntos 3A y 3B
+		 */
+		private int zonaOrigen;
+		private int zonaDestino;
+		private int mes;
+		private double key;
+		public ValorViajesRangoConKey(int pOrigen, int pDestino, int pMes, double pKey){
+			zonaOrigen=pOrigen;
+			zonaDestino=pDestino;
+			mes=pMes;
+			key=pKey;
+
+		}
+		@Override
+		public int compareTo(ValorViajesRangoConKey o) {
 
 			if(zonaOrigen==o.zonaOrigen){
 				if(zonaDestino==o.zonaDestino)
@@ -464,8 +498,9 @@ public class MVCModelo {
 		cargados = 0;
 		Arbol3A = new ArbolRN<Double, MVCModelo.ValorViajesRango>(); //Asignado
 		Arbol3B = new ArbolRN<Double, MVCModelo.ValorViajesRango>(); //Asignado
-		hash1C = new HashLP<MVCModelo.ZonaYHoraDadaKey, MVCModelo.ZonaYHoraDadaValue>(11); //Asignado
+		hash1C = new HashLP<MVCModelo.ZonaYHoraDadaKey, MVCModelo.ZonaYHoraDadaValue>(13); //Asignado
 		Arbol2C = new ArbolRN<MVCModelo.ZonaYHoraDadaKey, MVCModelo.ZonaYHoraDadaValue>(); //Asignado
+		hash2B = new HashLP<NodosDelimitanZonaLocalizacionKey,NodosDelimitanZonaLocalizacionValue2B>(13);
 
 
 		try {
@@ -584,10 +619,11 @@ public class MVCModelo {
 			String lineaActual = leer.readLine();
 			while(lineaActual != "" && lineaActual != null)
 			{
-				//				String[] valores = lineaActual.split(",");
-				//				valores[0]
-				//				valores[1]//Falta asignar
-				//				valores[2]		
+				String[] valores = lineaActual.split(",");
+				int ID= Integer.parseInt(valores[0]);
+				double longitud= Double.parseDouble(valores[1]);
+				double latitud= Double.parseDouble(valores[2]);
+				hash2B.put(new NodosDelimitanZonaLocalizacionKey(longitud, latitud, 2),new NodosDelimitanZonaLocalizacionValue2B(longitud, latitud,ID));	
 				lineaActual = leer.readLine();
 				cargados++;
 			}
@@ -656,7 +692,35 @@ public class MVCModelo {
 			n--;
 		}
 	}
-	
+	//3A
+	public Queue<String> BuscarEnUnRangoYPrimerTrimestreTiempoPromedio2018(double limiteInicial, double limiteFinal, int N){
+		int contador=0;
+		if(Arbol3A.size()!=0){
+			Queue<String> viajes= new Queue<String>(null);
+			Iterable<Double> keys=Arbol3A.keys();
+			Iterable<Queue<ValorViajesRango>> values=Arbol3A.valuesInRange(limiteInicial, limiteFinal);
+			Iterator<Queue<ValorViajesRango>> iteradorValues=values.iterator();
+			Iterator<Double> iteradorKeys=keys.iterator();
+			MaxHeapCP<ValorViajesRangoConKey> organizador= new MaxHeapCP<ValorViajesRangoConKey>();
+			while(iteradorKeys.hasNext()&&contador<N){
+				Double TPromedio=iteradorKeys.next();
+				Queue<ValorViajesRango> ColaValor= iteradorValues.next();
+				Iterator<ValorViajesRango> iteradorColaValor=  ColaValor.iterator();
+				while(iteradorColaValor.hasNext()&&contador<N){
+					ValorViajesRango Valor = iteradorColaValor.next();
+				    organizador.agregar(new ValorViajesRangoConKey(Valor.zonaOrigen,Valor.zonaDestino, Valor.mes, TPromedio));
+				    contador++;
+				}
+			}
+			while(!organizador.esVacia()){
+				ValorViajesRangoConKey Valor= organizador.sacarMax();
+			viajes.enQueue("Tiempo Promedio:"+ Valor.key +", Zona Origen:" +Valor.zonaOrigen+ ", Zona Destino:"+ Valor.zonaDestino+ ", Mes:" + Valor.mes);
+			}
+			return viajes;
+		}else{
+			return new Queue<String>(null);
+		}
+	}
 	/*
 	 * Parte B
 	 */
@@ -671,4 +735,70 @@ public class MVCModelo {
         }
         return NodosRespuesta;
     }
-}
+	//3B
+	public Queue<String> BuscarEnUnRangoYPrimerTrimestreDesviacion2018(double limiteInicial, double limiteFinal, int N){
+		int contador = 0;
+		if(Arbol3B.size()!=0){
+			Queue<String> viajes= new Queue<String>(null);
+			Iterable<Double> keys=Arbol3B.keys();
+			Iterable<Queue<ValorViajesRango>> values=Arbol3B.valuesInRange(limiteInicial, limiteFinal);
+			Iterator<Queue<ValorViajesRango>> iteradorValues=values.iterator();
+			Iterator<Double> iteradorKeys=keys.iterator();
+			MaxHeapCP<ValorViajesRangoConKey> organizador= new MaxHeapCP<ValorViajesRangoConKey>();
+			while(iteradorKeys.hasNext()&&contador<N){
+				Double DesviacionEstandar=iteradorKeys.next();
+				Queue<ValorViajesRango> ColaValor= iteradorValues.next();
+				Iterator<ValorViajesRango> iteradorColaValor=  ColaValor.iterator();
+				while(iteradorColaValor.hasNext()&&contador<N){
+					ValorViajesRango Valor = iteradorColaValor.next();
+				    organizador.agregar(new ValorViajesRangoConKey(Valor.zonaOrigen,Valor.zonaDestino, Valor.mes, DesviacionEstandar));
+				    contador++;
+				}
+			}
+			while(!organizador.esVacia()){
+				ValorViajesRangoConKey Valor= organizador.sacarMax();
+			viajes.enQueue("Desviacion Estandar:"+ Valor.key +", Zona Origen:" +Valor.zonaOrigen+ ", Zona Destino:"+ Valor.zonaDestino+ ", Mes:" + Valor.mes);
+			}
+			return viajes;
+		}else{
+			return new Queue<String>(null);
+		}
+	}
+	//Parte C
+	
+	//C1
+	public Queue<String> ViajesConHoraYZonaOrigenDada(int pZonaSalida, int pHora){
+		Queue<String> viajes = new Queue<String>(null);
+		ZonaYHoraDadaKey keyBuscada = new ZonaYHoraDadaKey(pHora,pZonaSalida);
+		Queue<ZonaYHoraDadaValue> valores=hash1C.get(keyBuscada);
+		while(!valores.isEmpty()){
+			ZonaYHoraDadaValue valor= valores.deQueue();
+			viajes.enQueue("Zona Salida:"+ pZonaSalida+", Zona Destino:"+valor.zona+", Hora:"+ pHora+ ", Tiempo Promedio:"+ valor.tiempoPromedio);
+		}
+			
+		return viajes;
+	}
+	//C2
+	public Queue<String> ViajesEnRangoDeHorasYZonaDestinoDada(int pZonaLlegada, int pHoraInicial, int pHoraFinal){
+		Queue<String> viajes = new Queue<String>(null);
+		ZonaYHoraDadaKey keyInicial = new ZonaYHoraDadaKey(pHoraInicial,pZonaLlegada);
+		ZonaYHoraDadaKey keyFinal = new ZonaYHoraDadaKey(pHoraFinal,pZonaLlegada);
+		Iterable<ZonaYHoraDadaKey> keys= Arbol2C.keys(keyInicial,keyFinal);
+		Iterable<Queue<ZonaYHoraDadaValue>> values= Arbol2C.valuesInRange(keyInicial, keyFinal);
+		Iterator<ZonaYHoraDadaKey> iteradorKeys= keys.iterator();
+		Iterator<Queue<ZonaYHoraDadaValue>> iteradorValues= values.iterator();
+		while(iteradorKeys.hasNext()){
+			ZonaYHoraDadaKey llave=iteradorKeys.next();
+			int hora = llave.hora;
+			Queue<ZonaYHoraDadaValue> colaValue= iteradorValues.next();
+			Iterator<ZonaYHoraDadaValue> iteradorColaValue= colaValue.iterator();
+			while(iteradorColaValue.hasNext()){
+				ZonaYHoraDadaValue Valor = iteradorColaValue.next();
+				viajes.enQueue("Zona Origen:"+ Valor.zona+", Zona Destino:"+pZonaLlegada +", Hora:"+hora +", Tiempo Promedio:"+Valor.tiempoPromedio);
+			}
+		}
+		
+
+		return viajes;
+	}
+	}
