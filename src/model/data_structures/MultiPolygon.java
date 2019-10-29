@@ -10,4 +10,9 @@ public class MultiPolygon {
 	{
 		coordinates = Ppoligonos;
 	}
+	
+	public double[][][][] darCoordenadas()
+	{
+		return coordinates;
+	}
 }

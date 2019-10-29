@@ -47,7 +47,7 @@ public class HashLP<K extends Comparable<K>, V> {
 			hashKey=(hashKey+1)%N;
 		}
 		llaves[hashKey]=pKey;
-		values[hashKey].enQueue(pValue);
+		values[hashKey]= new Queue<V>(new Node<V>(pValue,null));
 
 	}
 	}
@@ -68,7 +68,7 @@ public class HashLP<K extends Comparable<K>, V> {
 	if(existe){
 
 	}else{
-		if(nElementos==N-1){
+		if(nElementos==N/2){
 
 			rehash(2*N);
 
@@ -102,7 +102,7 @@ public class HashLP<K extends Comparable<K>, V> {
 		nElementos+=pValue.size();
 		if(nElementos==N-1){
 
-			rehash(2*N);
+			rehash(10*N);
 
 		}
 		int hashKey= hash(pKey);
