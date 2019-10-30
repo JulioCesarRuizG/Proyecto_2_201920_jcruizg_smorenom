@@ -19,6 +19,8 @@ import model.data_structures.Node;
 import model.data_structures.Queue;
 import model.data_structures.Viaje;
 import model.logic.MVCModelo.ValorViajesRango;
+import model.logic.MVCModelo.ZonaYHoraDadaKeyConTrim;
+import model.logic.MVCModelo.ZonaYHoraDadaValue;
 
 /**
  * Definicion del modelo del mundo
@@ -39,23 +41,22 @@ public class MVCModelo {
 		public A1Letras(char pLetra, String pNombre){
 			letra=pLetra;
 			nombres= new Queue<String>(new Node<String>(pNombre,null));
-			cantidad= nombres.size();
+			cantidad= 1;
 		}
 		public void agregarNombre(String pNombre){
 			nombres.enQueue(pNombre);
 			cantidad++;
 		}
 		public int compareTo(A1Letras o) {
-			if(cantidad==o.cantidad)
-				return 0;
-			if(cantidad<o.cantidad)
-				return-1;
-			else
+			if(cantidad>o.cantidad)
 				return 1;
+			else if(cantidad<o.cantidad)
+				return-1;
+			return 0;
 		}
 
 	}
-	private class ValorViajesRango implements Comparable<ValorViajesRango>{
+	public class ValorViajesRango implements Comparable<ValorViajesRango>{
 		/*
 		 * Se utilizará para guardar los datos necesarios en los puntos 3A y 3B
 		 */
@@ -165,7 +166,31 @@ public class MVCModelo {
 		}
 
 	}
-	private class ZonaYHoraDadaValue  {
+
+	public class ZonaYHoraDadaKeyConTrim implements Comparable<ZonaYHoraDadaKeyConTrim>  {
+		/*
+		 * Se utilizará para guardar las keys en el punto 1C
+		 */
+		private int zona;
+		private int hora;
+		private int trim;
+		public ZonaYHoraDadaKeyConTrim(int pHora, int pZona, int ptrim){
+			hora=pHora;
+			zona=pZona;
+			trim = ptrim;
+		}
+		@Override
+		public int compareTo(ZonaYHoraDadaKeyConTrim o) {
+			if(zona==o.zona&&hora==o.hora&&trim==o.trim)
+				return 0;
+			if((zona+""+hora+""+trim).compareTo(o.zona+""+o.hora+""+o.trim)==-1){
+				return -1;
+			}
+			else return 1;
+		}
+
+	}
+	public class ZonaYHoraDadaValue  {
 		/*
 		 * Se utilizará para guardar los values en el punto 1C
 		 */
@@ -264,6 +289,27 @@ public class MVCModelo {
 		}
 	}
 
+	private class NodosLimitan3C implements Comparable<NodosLimitan3C>
+	{
+		private double tamaño;
+		public NodosLimitan3C(int pTam)
+		{
+			tamaño = pTam;
+		}
+		@Override
+		public int compareTo(NodosLimitan3C o) {
+			if(tamaño > o.tamaño)
+			{
+				return 1;
+			}
+			else if(tamaño < o.tamaño)
+			{
+				return -1;
+			}
+			return 0;
+		}
+	}
+
 	private MaxHeapCP<A1Letras> heap1A;
 	/*
 	 * Este arbol se utilizará para el punto 3A del proyecto. Tendrá como key el tiempo promedio de los viajes que lea
@@ -278,6 +324,7 @@ public class MVCModelo {
 
 	private HashLP<NodosDelimitanZonaLocalizacionKey,NodosDelimitanZonaLocalizacionValue2A> hash2A;
 	private HashLP<NodosDelimitanZonaLocalizacionKey,NodosDelimitanZonaLocalizacionValue2B> hash2B;
+	private HashLP<ZonaYHoraDadaKeyConTrim,ZonaYHoraDadaValue> hash4C;
 	/*
 	 * Se Utilizará para para el punto 1C, y se designará la zona de origen y la hora como key, usando una clase privada
 	 */
@@ -325,12 +372,34 @@ public class MVCModelo {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
+		hash1C = new HashLP<MVCModelo.ZonaYHoraDadaKey, MVCModelo.ZonaYHoraDadaValue>(13);
 		heap1A = new MaxHeapCP<A1Letras>();
-		
-		A1Letras[] agregar2 = null;
+		heap3C = new MaxHeapCP<NNodosYNombre3C>();
+		heap1B = new MaxHeapCP<ValorMasAlNorte>();
+		hash2A = new HashLP<NodosDelimitanZonaLocalizacionKey, NodosDelimitanZonaLocalizacionValue2A>(7);
+
+		A1Letras[] agregar2 = new A1Letras[27];
 		for(Feature features : valoresJson.getFeatures())
 		{
+			{
+				int num = 0;
+				for(double[][][] niv1 : features.darMultiPolygon().darCoordenadas())
+				{
+					double[][] niv2 = niv1[0];
+					for(double[] niv3 : niv2)
+					{
+						num++;
+						ValorMasAlNorte val = new ValorMasAlNorte(niv3[0], features.darPropiedades().darScanombre(), niv3[1]);
+						heap1B.agregar(val);
+						NodosDelimitanZonaLocalizacionKey llave = new NodosDelimitanZonaLocalizacionKey(niv3[1], niv3[0], 3);
+						NodosDelimitanZonaLocalizacionValue2A valor = new NodosDelimitanZonaLocalizacionValue2A(niv3[1], niv3[0], features.darPropiedades().darScanombre());
+						hash2A.put(llave, valor);
+					}
+				}
+				NNodosYNombre3C nodos = new NNodosYNombre3C(num, features.darPropiedades().darScanombre());
+				heap3C.agregar(nodos);
+			}
 			int valor = 0;
 			String nombre = features.darPropiedades().darScanombre();
 			char letraChar = nombre.toLowerCase().charAt(0);
@@ -443,7 +512,7 @@ public class MVCModelo {
 			{
 				valor = 26;
 			}
-			
+
 			if(agregar2[valor] != null)
 			{
 				agregar2[valor].agregarNombre(nombre);
@@ -452,11 +521,18 @@ public class MVCModelo {
 			{
 				agregar2[valor] = new A1Letras(letraChar, nombre);
 			}
-			
+
 		}
 		for(A1Letras todas : agregar2)
 		{
-			heap1A.agregar(todas);
+			if(todas == null)
+			{
+
+			}
+			else
+			{
+				heap1A.agregar(todas);
+			}
 		}
 
 		String pRutaM="";
@@ -501,6 +577,7 @@ public class MVCModelo {
 		hash1C = new HashLP<MVCModelo.ZonaYHoraDadaKey, MVCModelo.ZonaYHoraDadaValue>(13); //Asignado
 		Arbol2C = new ArbolRN<MVCModelo.ZonaYHoraDadaKey, MVCModelo.ZonaYHoraDadaValue>(); //Asignado
 		hash2B = new HashLP<NodosDelimitanZonaLocalizacionKey,NodosDelimitanZonaLocalizacionValue2B>(13);
+		hash4C = new HashLP<ZonaYHoraDadaKeyConTrim, ZonaYHoraDadaValue>(13);
 
 
 		try {
@@ -540,31 +617,64 @@ public class MVCModelo {
 				System.out.println(cargados);
 			}
 			cargados = 0;
+			boolean primer = false;
+			if(pRutaH.equals("./data/bogota-cadastral-2018-1-All-HourlyAggregate.csv"))
+			{
+				primer = true;
+			}
 
-			reader2= new CSVReader(new FileReader(pRutaH));
-			for(String[] nextLine : reader2) {
-				if(nextLine[0].toString().contains("sourceid"))
-				{
+						reader2= new CSVReader(new FileReader(pRutaH));
+						for(String[] nextLine : reader2) {
+							if(nextLine[0].toString().contains("sourceid"))
+							{
+			
+							}
+							else
+							{
+			
+			
+								int  inicioID=Integer.parseInt(nextLine[0]);
+								int destinoID=Integer.parseInt(nextLine[1]);
+								int hora=Integer.parseInt(nextLine[2]);
+								double tiempoPromedioEnSegundos=Double.parseDouble(nextLine[3]);
+								double desviacionEstandar=Double.parseDouble(nextLine[4]);
+								double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
+								double desviacionEstandarG=Double.parseDouble(nextLine[6]);
+								hash1C.put(new ZonaYHoraDadaKey(hora,inicioID), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,destinoID));
+								Arbol2C.put(new ZonaYHoraDadaKey(hora,destinoID), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,inicioID));
+								Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
+								if(primer == true)
+								{
+									hash4C.put(new ZonaYHoraDadaKeyConTrim(hora,inicioID,1), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,destinoID));
+								}
+								agregar = i;
+			
+								cargados++;
+			
+							}
+						}
+			if(primer == true)
+			{
+				reader3= new CSVReader(new FileReader("./data/bogota-cadastral-2018-2-All-HourlyAggregate.csv"));
+				for(String[] nextLine : reader3) {
+					if(nextLine[0].toString().contains("sourceid"))
+					{
 
-				}
-				else
-				{
+					}
+					else
+					{
+						int  inicioID=Integer.parseInt(nextLine[0]);
+						int destinoID=Integer.parseInt(nextLine[1]);
+						int hora=Integer.parseInt(nextLine[2]);
+						double tiempoPromedioEnSegundos=Double.parseDouble(nextLine[3]);
+						double desviacionEstandar=Double.parseDouble(nextLine[4]);
+						double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
+						double desviacionEstandarG=Double.parseDouble(nextLine[6]);
+						hash4C.put(new ZonaYHoraDadaKeyConTrim(hora,inicioID,2), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,destinoID));
+						Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
+						agregar = i;
 
-
-					int  inicioID=Integer.parseInt(nextLine[0]);
-					int destinoID=Integer.parseInt(nextLine[1]);
-					int hora=Integer.parseInt(nextLine[2]);
-					double tiempoPromedioEnSegundos=Double.parseDouble(nextLine[3]);
-					double desviacionEstandar=Double.parseDouble(nextLine[4]);
-					double tiempoPromedioGEnSegundos=Double.parseDouble(nextLine[5]);
-					double desviacionEstandarG=Double.parseDouble(nextLine[6]);
-					hash1C.put(new ZonaYHoraDadaKey(hora,inicioID), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,destinoID));
-					Arbol2C.put(new ZonaYHoraDadaKey(hora,destinoID), new ZonaYHoraDadaValue(tiempoPromedioEnSegundos,inicioID));
-					Viaje i = new Viaje(inicioID,destinoID,hora,tiempoPromedioEnSegundos,desviacionEstandar,tiempoPromedioGEnSegundos,desviacionEstandarG);
-					agregar = i;
-
-					cargados++;
-
+					}
 				}
 			}
 
@@ -667,11 +777,11 @@ public class MVCModelo {
 			}
 		}
 	}
-	
+
 	/*
 	 * Parte A
 	 */
-	
+
 	//1A
 	public void darNLetrasMásFrecuentes(int n) throws Exception
 	{
@@ -689,11 +799,23 @@ public class MVCModelo {
 				actual = actual.darSiguiente();
 			}
 			System.out.println(nombres.substring(0, nombres.length()-2));
-			n--;
+			iter--;
 		}
 	}
+
+	//2A
+	public Queue<String> BuscarNodosDelimitacionGeografica(double pLatitud, double pLongitud){
+		Queue<String> NodosRespuesta = new Queue<String>(null);
+		Queue<NodosDelimitanZonaLocalizacionValue2A> NodosHash= hash2A.get(new NodosDelimitanZonaLocalizacionKey(pLatitud,pLongitud,3)); 
+		while(NodosHash.size()!=0){
+			NodosDelimitanZonaLocalizacionValue2A dato= NodosHash.deQueue();
+			NodosRespuesta.enQueue("Nombre="+dato.nombre+", Latitud="+ dato.latitud+", Longitud=" +dato.longitud);
+		}
+		return NodosRespuesta;
+	}
+
 	//3A
-	public Queue<String> BuscarEnUnRangoYPrimerTrimestreTiempoPromedio2018(double limiteInicial, double limiteFinal, int N){
+	public Queue<String> BuscarEnUnRangoYPrimerTrimestreTiempoPromedio2018(double limiteInicial, double limiteFinal, int N) throws Exception{
 		int contador=0;
 		if(Arbol3A.size()!=0){
 			Queue<String> viajes= new Queue<String>(null);
@@ -708,13 +830,13 @@ public class MVCModelo {
 				Iterator<ValorViajesRango> iteradorColaValor=  ColaValor.iterator();
 				while(iteradorColaValor.hasNext()&&contador<N){
 					ValorViajesRango Valor = iteradorColaValor.next();
-				    organizador.agregar(new ValorViajesRangoConKey(Valor.zonaOrigen,Valor.zonaDestino, Valor.mes, TPromedio));
-				    contador++;
+					organizador.agregar(new ValorViajesRangoConKey(Valor.zonaOrigen,Valor.zonaDestino, Valor.mes, TPromedio));
+					contador++;
 				}
 			}
 			while(!organizador.esVacia()){
 				ValorViajesRangoConKey Valor= organizador.sacarMax();
-			viajes.enQueue("Tiempo Promedio:"+ Valor.key +", Zona Origen:" +Valor.zonaOrigen+ ", Zona Destino:"+ Valor.zonaDestino+ ", Mes:" + Valor.mes);
+				viajes.enQueue("Tiempo Promedio:"+ Valor.key +", Zona Origen:" +Valor.zonaOrigen+ ", Zona Destino:"+ Valor.zonaDestino+ ", Mes:" + Valor.mes);
 			}
 			return viajes;
 		}else{
@@ -724,19 +846,32 @@ public class MVCModelo {
 	/*
 	 * Parte B
 	 */
-	
+
+	//1B
+	public void darNZonasMásAlNorte(int n) throws Exception
+	{
+		int can = n;
+		while(can != 0)
+		{
+			ValorMasAlNorte nodo =heap1B.sacarMax();
+			System.out.println("El punto de la zona: " + nodo.nombre + " más al norte está en las coordenadas: " + nodo.latitud + ", " + nodo.longitud);
+			can--;
+		}
+	}
+
+
 	//2B
 	public Queue<String> BuscarNodosMallaVial(double pLatitud, double pLongitud){
-        Queue<String> NodosRespuesta = new Queue<String>(null);
-        Queue<NodosDelimitanZonaLocalizacionValue2B> NodosHash= hash2B.get(new NodosDelimitanZonaLocalizacionKey(pLatitud,pLongitud,2)); 
-        while(NodosHash.size()!=0){
-            NodosDelimitanZonaLocalizacionValue2B dato= NodosHash.deQueue();
-            NodosRespuesta.enQueue("ID="+dato.ID+", Latitud="+ dato.latitud+", Longitud=" +dato.longitud);
-        }
-        return NodosRespuesta;
-    }
+		Queue<String> NodosRespuesta = new Queue<String>(null);
+		Queue<NodosDelimitanZonaLocalizacionValue2B> NodosHash= hash2B.get(new NodosDelimitanZonaLocalizacionKey(pLatitud,pLongitud,2)); 
+		while(NodosHash.size()!=0){
+			NodosDelimitanZonaLocalizacionValue2B dato= NodosHash.deQueue();
+			NodosRespuesta.enQueue("ID="+dato.ID+", Latitud="+ dato.latitud+", Longitud=" +dato.longitud);
+		}
+		return NodosRespuesta;
+	}
 	//3B
-	public Queue<String> BuscarEnUnRangoYPrimerTrimestreDesviacion2018(double limiteInicial, double limiteFinal, int N){
+	public Queue<String> BuscarEnUnRangoYPrimerTrimestreDesviacion2018(double limiteInicial, double limiteFinal, int N) throws Exception{
 		int contador = 0;
 		if(Arbol3B.size()!=0){
 			Queue<String> viajes= new Queue<String>(null);
@@ -751,13 +886,13 @@ public class MVCModelo {
 				Iterator<ValorViajesRango> iteradorColaValor=  ColaValor.iterator();
 				while(iteradorColaValor.hasNext()&&contador<N){
 					ValorViajesRango Valor = iteradorColaValor.next();
-				    organizador.agregar(new ValorViajesRangoConKey(Valor.zonaOrigen,Valor.zonaDestino, Valor.mes, DesviacionEstandar));
-				    contador++;
+					organizador.agregar(new ValorViajesRangoConKey(Valor.zonaOrigen,Valor.zonaDestino, Valor.mes, DesviacionEstandar));
+					contador++;
 				}
 			}
 			while(!organizador.esVacia()){
 				ValorViajesRangoConKey Valor= organizador.sacarMax();
-			viajes.enQueue("Desviacion Estandar:"+ Valor.key +", Zona Origen:" +Valor.zonaOrigen+ ", Zona Destino:"+ Valor.zonaDestino+ ", Mes:" + Valor.mes);
+				viajes.enQueue("Desviacion Estandar:"+ Valor.key +", Zona Origen:" +Valor.zonaOrigen+ ", Zona Destino:"+ Valor.zonaDestino+ ", Mes:" + Valor.mes);
 			}
 			return viajes;
 		}else{
@@ -765,20 +900,26 @@ public class MVCModelo {
 		}
 	}
 	//Parte C
-	
-	//C1
+
+	//1C
 	public Queue<String> ViajesConHoraYZonaOrigenDada(int pZonaSalida, int pHora){
 		Queue<String> viajes = new Queue<String>(null);
 		ZonaYHoraDadaKey keyBuscada = new ZonaYHoraDadaKey(pHora,pZonaSalida);
 		Queue<ZonaYHoraDadaValue> valores=hash1C.get(keyBuscada);
-		while(!valores.isEmpty()){
-			ZonaYHoraDadaValue valor= valores.deQueue();
-			viajes.enQueue("Zona Salida:"+ pZonaSalida+", Zona Destino:"+valor.zona+", Hora:"+ pHora+ ", Tiempo Promedio:"+ valor.tiempoPromedio);
+		if(valores.isEmpty())
+		{
+			System.out.println("No hay viajes para mostrar");
 		}
-			
+		else {
+			while(!valores.isEmpty()){
+				ZonaYHoraDadaValue valor= valores.deQueue();
+				viajes.enQueue("Zona Salida:"+ pZonaSalida+", Zona Destino:"+valor.zona+", Hora:"+ pHora+ ", Tiempo Promedio:"+ valor.tiempoPromedio);
+			}
+		}
+
 		return viajes;
 	}
-	//C2
+	//2C
 	public Queue<String> ViajesEnRangoDeHorasYZonaDestinoDada(int pZonaLlegada, int pHoraInicial, int pHoraFinal){
 		Queue<String> viajes = new Queue<String>(null);
 		ZonaYHoraDadaKey keyInicial = new ZonaYHoraDadaKey(pHoraInicial,pZonaLlegada);
@@ -797,8 +938,54 @@ public class MVCModelo {
 				viajes.enQueue("Zona Origen:"+ Valor.zona+", Zona Destino:"+pZonaLlegada +", Hora:"+hora +", Tiempo Promedio:"+Valor.tiempoPromedio);
 			}
 		}
-		
+
 
 		return viajes;
 	}
+
+	//3C
+	public void darNZonasPorNodos(int n) throws Exception
+	{
+		int can = n;
+		while(can != 0)
+		{
+			NNodosYNombre3C nodo =heap3C.sacarMax();
+			System.out.println("La zona: " + nodo.nombre + " tiene un total de " + nodo.nNodos + " nodos en su frontera");
+			can--;
+		}
 	}
+
+
+	//4C	
+	public void GraficaASCII()
+	{
+		int[] faltantes = null;
+		for(int Ftrim = 1; Ftrim<3 ; Ftrim++)
+		{
+			for(int Fhora = 0 ; Fhora < 24 ; Fhora++)
+			{
+				for(int Fzona = 0 ; Fzona < 1200 ; Fzona++)
+				{
+					ZonaYHoraDadaKeyConTrim key = new ZonaYHoraDadaKeyConTrim(Fhora, Fzona, Ftrim);
+					if(hash4C.get(key) == null)
+					{
+						faltantes[Fzona]++;
+					}
+				}
+			}
+		}
+		System.out.println("Porcentaje de datos faltantes por zona");
+		for(int i: faltantes)
+		{
+			int num = 1;
+			int cantidad=i;
+			String s = num + "|";
+			while(cantidad!=0)
+			{
+				s = s+"*";
+				cantidad--;
+			}System.out.println(s);
+			num++;
+		}
+	}
+}
